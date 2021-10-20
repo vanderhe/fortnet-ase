@@ -21,7 +21,7 @@ Installation
 
 |build status|
 
-The package can be installed via conda-forge::
+The package can be installed via conda-forge (available with first release)::
 
   conda install fortnet-ase
 
