@@ -41,8 +41,8 @@ Documentation
 
 Consult following resources for documentation:
 
-* `Step-by-step instructions with selected examples (fortnet-ase Recipes)
-  <https://fortnet.readthedocs.io/>`_
+* `Step-by-step instructions with selected examples (Fortnet-Ase Recipes)
+  <https://fortnet-ase.readthedocs.io/>`_
 
 Contributing
 ============
@@ -85,5 +85,5 @@ fortnet-ase is released under the BSD 2-clause license. See the included
 .. |issues| image:: https://img.shields.io/github/issues/vanderhe/fortnet-ase.svg
     :target: https://github.com/vanderhe/fortnet-ase/issues/
 
-.. |build status| image:: https://img.shields.io/github/workflow/status/vanderhe/fortnet-ase/Build%20and%20Test
+.. |build status| image:: https://img.shields.io/github/workflow/status/vanderhe/fortnet-ase/CI
     :target: https://github.com/vanderhe/fortnet-ase/actions/
