@@ -7,4 +7,5 @@
 
 
 # Pull main classes up to the fnetase top level domain namespace
-from fnetase.calculator import Fortnet
+from .calculator import Fortnet
+from .common import FortnetAseError

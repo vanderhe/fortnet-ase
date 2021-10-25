@@ -19,20 +19,35 @@ dynamics.
 Installation
 ============
 
-|build status|
+Please note, that this package has been tested for Python 3.X support. Its usage
+additionally requires
 
-The package can be installed via conda-forge (available with first release)::
+  - `Atomic Simulation Environment
+    <https://wiki.fysik.dtu.dk/ase/install.html>`_ (`ase`)
+  - `Fortnet Python tools <https://github.com/vanderhe/fortnet-python>`_
+    (`fortnet-python`)
 
-  conda install fortnet-ase
+as well as the `pytest` framework in order to run the regression tests.
 
-Alternatively, the package can be downloaded and installed via pip into the
-active Python interpreter (preferably using a virtual python environment) by ::
+Via the Python Package Index
+----------------------------
+
+The package can be downloaded and installed via pip into the active Python
+interpreter (preferably using a virtual python environment) by ::
 
   pip install fortnet-ase
 
-or into the user space issueing ::
+or into the user space issueing::
 
   pip install --user fortnet-ase
+
+Locally from Source
+-------------------
+
+Alternatively, you can install it locally from source, i.e. from the root folder
+of the project::
+
+  python -m pip install .
 
 Documentation
 =============
@@ -41,8 +56,8 @@ Documentation
 
 Consult following resources for documentation:
 
-* `Step-by-step instructions with selected examples (Fortnet-Ase Recipes)
-  <https://fortnet-ase.readthedocs.io/>`_
+* `Step-by-step instructions with selected examples (Fortnet Recipes)
+  <https://fortnet.readthedocs.io/en/latest/interfaces/index.html>`_
 
 Contributing
 ============
@@ -77,10 +92,10 @@ fortnet-ase is released under the BSD 2-clause license. See the included
 .. |doi| image:: https://zenodo.org/badge/356394988.svg
    :target: https://zenodo.org/badge/latestdoi/356394988
 
-.. |docs status| image:: https://readthedocs.org/projects/fortnet-ase/badge/?version=latest
+.. |docs status| image:: https://readthedocs.org/projects/fortnet/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
-    :target: https://fortnet-ase.readthedocs.io/en/latest/
+    :target: https://fortnet-python.readthedocs.io/en/latest/
 
 .. |issues| image:: https://img.shields.io/github/issues/vanderhe/fortnet-ase.svg
     :target: https://github.com/vanderhe/fortnet-ase/issues/
