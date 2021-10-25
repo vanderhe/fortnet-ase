@@ -57,7 +57,7 @@ Documentation
 Consult following resources for documentation:
 
 * `Step-by-step instructions with selected examples (Fortnet Recipes)
-  <https://fortnet.readthedocs.io/en/latest/interfaces/index.html>`_
+  <https://fortnet.readthedocs.io/en/latest/interfaces/ase/index.html>`_
 
 Contributing
 ============
