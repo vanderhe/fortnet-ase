@@ -15,8 +15,9 @@ https://github.com/vanderhe/fortnet
 
 
 import os
-
+import h5py
 import hsd
+import numpy as np
 from ase.calculators.calculator import FileIOCalculator
 from fortformat import Fnetdata, Fnetout
 from .common import FortnetAseError
@@ -28,6 +29,19 @@ BOHR_AA = 0.529177249
 AA_BOHR = 1.0 / BOHR_AA
 HARTREE_EV = 27.2113845
 EV_HARTREE = 1.0 / HARTREE_EV
+
+ELEMENTSYMBOL = ['h', 'he', 'li', 'be', 'b', 'c', 'n', 'o', 'f', 'ne',
+                 'na', 'mg', 'al', 'si', 'p ', 's ', 'cl', 'ar', 'k', 'ca',
+                 'sc', 'ti', 'v', 'cr', 'mn', 'fe', 'co', 'ni', 'cu', 'zn',
+                 'ga', 'ge', 'as', 'se', 'br', 'kr', 'rb', 'sr', 'y', 'zr',
+                 'nb', 'mo', 'tc', 'ru', 'rh', 'pd', 'ag', 'cd', 'in', 'sn',
+                 'sb', 'te', 'i', 'xe', 'cs', 'ba', 'la', 'ce', 'pr', 'nd',
+                 'pm', 'sm', 'eu', 'gd', 'tb', 'dy', 'ho', 'er', 'tm', 'yb',
+                 'lu', 'hf', 'ta', 'w', 're', 'os', 'ir', 'pt', 'au', 'hg',
+                 'tl', 'pb', 'bi', 'po', 'at', 'rn', 'fr', 'ra', 'ac', 'th',
+                 'pa', 'u', 'np', 'pu', 'am', 'cm', 'bk', 'cf', 'es', 'fm',
+                 'md', 'no', 'lr', 'rf', 'db', 'sg', 'bh', 'hs', 'mt', 'ds',
+                 'rg', 'cn', 'nh', 'fl', 'mc', 'lv', 'ts', 'og']
 
 FNETDATA = 'fnetdata.hdf5'
 FNETOUT = 'fnetout.hdf5'
@@ -90,19 +104,72 @@ def get_fortnet_input(netstat, finitediffdelta, forces):
     fnetinp['Data']['Dataset'] = FNETDATA
     fnetinp['Data']['NetstatFile'] = netstat
 
-    if forces is not None:
+    if forces:
         fnetinp['Analysis'] = {}
         fnetinp['Analysis']['Forces'] = {}
         fnetinp['Analysis']['Forces']['FiniteDifferences'] = {}
         if finitediffdelta is not None:
             if finitediffdelta <= 0.0:
                 msg = 'Error while processing finite difference delta ' + \
-                    finitediffdelta + '. Must be positive.'
+                    str(finitediffdelta) + '. Must be positive.'
                 raise FortnetAseError(msg)
             fnetinp['Analysis']['Forces']['FiniteDifferences']['Delta'] = \
                 finitediffdelta
 
     return fnetinp
+
+
+def _check_bpnn_configuration(fname, tforces):
+    '''Checks a given Netstat file for compliance with ASE's expectations.
+
+    Args:
+
+        fname (str): path to the netstat file
+        tforces (bool): true, if force analysis is requested
+
+    '''
+
+    with h5py.File(fname, 'r') as netstatfile:
+        netstat = netstatfile['netstat']
+        # currently only the BPNN topology is allowed
+        if 'netstat/bpnn' in netstatfile:
+            bpnn = netstat['bpnn']
+        else:
+            msg = "Error while reading netstat file '" + fname + \
+                "'. No network group/information present."
+            raise FortnetAseError(msg)
+
+        if not bpnn.attrs.get('targettype').decode('UTF-8').strip() == 'global':
+            msg = "Error while reading netstat file '" + fname + \
+                "'. Only networks trained on global properties supported."
+            raise FortnetAseError(msg)
+
+        atomicnumbers = np.sort(np.array(bpnn['atomicnumbers'], dtype=int))
+
+        for atnum in atomicnumbers:
+            element = ELEMENTSYMBOL[atnum - 1]
+            subnet = bpnn[element + '-subnetwork']
+            topology = np.array(subnet['topology'], dtype=int)
+
+            if topology[-1] != 1:
+                msg = "Error while reading netstat file '" + fname + \
+                    "'. Only networks trained on a single global property" + \
+                    " are supported."
+                raise FortnetAseError(msg)
+
+        # inquire structural ACSF mappings
+        if 'netstat/mapping' not in netstatfile and tforces:
+            msg = "Error while reading netstat file '" + fname + \
+                "'. Calculation of forces is only supported in combination" + \
+                " with ACSF input features."
+            raise FortnetAseError(msg)
+
+        # inquire external atomic input features
+        if 'netstat/external' in netstatfile and tforces:
+            msg = "Error while reading netstat file '" + fname + \
+                "'. Calculation of forces is only supported for purely ACSF" + \
+                " based input features."
+            raise FortnetAseError(msg)
 
 
 class Fortnet(FileIOCalculator):
@@ -191,6 +258,8 @@ class Fortnet(FileIOCalculator):
         if properties is not None:
             if 'forces' in properties:
                 self.do_forces = True
+
+        _check_bpnn_configuration(self._netstat, self.do_forces)
 
         FileIOCalculator.write_input(self, atoms, properties, system_changes)
 
