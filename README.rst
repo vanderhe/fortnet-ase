@@ -22,10 +22,10 @@ Installation
 Please note, that this package has been tested for Python 3.X support. Its usage
 additionally requires
 
-  - `Atomic Simulation Environment
-    <https://wiki.fysik.dtu.dk/ase/install.html>`_ (`ase`)
-  - `Fortnet Python tools <https://github.com/vanderhe/fortnet-python>`_
-    (`fortnet-python`)
+- `Atomic Simulation Environment
+  <https://wiki.fysik.dtu.dk/ase/install.html>`_ (`ase`)
+- `Fortnet Python tools <https://github.com/vanderhe/fortnet-python>`_
+  (`fortnet-python`)
 
 as well as the `pytest` framework in order to run the regression tests.
 
