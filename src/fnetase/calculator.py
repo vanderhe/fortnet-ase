@@ -107,8 +107,11 @@ def get_fortnet_input(netstat, finitediffdelta, forces):
     if forces:
         fnetinp['Analysis'] = {}
         fnetinp['Analysis']['Forces'] = {}
-        fnetinp['Analysis']['Forces']['FiniteDifferences'] = {}
-        if finitediffdelta is not None:
+        # analytical forces are the default
+        if finitediffdelta is None:
+            fnetinp['Analysis']['Forces']['Analytical'] = {}
+        else:
+            fnetinp['Analysis']['Forces']['FiniteDifferences'] = {}
             if finitediffdelta <= 0.0:
                 msg = 'Error while processing finite difference delta ' + \
                     str(finitediffdelta) + '. Must be positive.'
@@ -185,7 +188,6 @@ class Fortnet(FileIOCalculator):
 
 
     def __init__(self, label='fortnet', atoms=None, restart='fortnet.hdf5',
-                 ignore_bad_restart_file=FileIOCalculator._deprecated,
                  **kwargs):
         '''Initializes a Fortnet file-IO calculator object.
 
@@ -209,11 +211,12 @@ class Fortnet(FileIOCalculator):
         self.outfilename = 'fortnet.out'
 
         # determine coordinate shift for finite differences
-        try:
+        if 'finitediffdelta' in kwargs:
             # expect coordinate shift in ASE units, i.e. Angstrom
             self._finitediffdelta = kwargs['finitediffdelta'] * AA_BOHR
-        except KeyError:
-            self._finitediffdelta = 1e-02
+        else:
+            # runs analytical force calculation if self.do_forces is true
+            self._finitediffdelta = None
 
         if os.path.isfile(restart):
             self._netstat = restart
@@ -222,8 +225,8 @@ class Fortnet(FileIOCalculator):
                 os.path.join(os.getcwd(), restart) + "' is not present."
             raise FortnetAseError(msg)
 
-        FileIOCalculator.__init__(self, restart, ignore_bad_restart_file, label,
-                                  atoms, **kwargs)
+        FileIOCalculator.__init__(self, restart=restart, label=label,
+                                  atoms=atoms, **kwargs)
 
 
     def _get_fortnet_input(self):
