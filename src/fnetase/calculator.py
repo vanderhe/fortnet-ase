@@ -142,9 +142,28 @@ def _check_bpnn_configuration(fname, tforces):
                 "'. No network group/information present."
             raise FortnetAseError(msg)
 
-        if not bpnn.attrs.get('targettype').decode('UTF-8').strip() == 'global':
+        # read number of system-wide targets
+        nglobaltargets = bpnn.attrs.get('nglobaltargets')
+        if len(nglobaltargets) == 1:
+            nglobaltargets = nglobaltargets[0]
+        else:
+            msg = "Error while reading netstat file '" + self._fname + \
+                "'. Unrecognized number of global targets obtained."
+            raise FortnetAseError(msg)
+
+        # read number of atomic targets
+        natomictargets = bpnn.attrs.get('natomictargets')
+        if len(natomictargets) == 1:
+            natomictargets = natomictargets[0]
+        else:
+            msg = "Error while reading netstat file '" + self._fname + \
+                "'. Unrecognized number of atomic targets obtained."
+            raise FortnetAseError(msg)
+
+        if nglobaltargets != 1 or natomictargets != 0:
             msg = "Error while reading netstat file '" + fname + \
-                "'. Only networks trained on global properties supported."
+                "'. Only networks trained on a single global property" + \
+                " are supported."
             raise FortnetAseError(msg)
 
         atomicnumbers = np.sort(np.array(bpnn['atomicnumbers'], dtype=int))
@@ -307,7 +326,7 @@ def read_energy():
     fnetout = Fnetout(FNETOUT)
     # assume a single system-wide energy prediction
     # further assume that the target unit was a.u.
-    energy = fnetout.predictions[0, 0] * HARTREE_EV
+    energy = fnetout.globalpredictions[0, 0] * HARTREE_EV
 
     return energy
 
