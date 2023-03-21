@@ -170,7 +170,7 @@ def _check_bpnn_configuration(fname, tforces):
 
         for atnum in atomicnumbers:
             element = ELEMENTSYMBOL[atnum - 1]
-            subnet = bpnn[element + '-subnetwork']
+            subnet = bpnn[element.strip() + '-subnetwork']
             topology = np.array(subnet['topology'], dtype=int)
 
             if topology[-1] != 1:
